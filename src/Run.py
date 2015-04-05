@@ -19,15 +19,19 @@ arm_length = 20
 wheel_big = 10
 wheel_small = 2
 
-# Initiate the spring
-springs = [
-    Spring( spring_const, init_spring_ext, arm_length, wheel_big, wheel_small)
-    ]
-
 # Initiate the objects participating in the simulation
 objects = [
-    MassiveObject(mass, area, drag_coeff, roll_res_coeff, springs[1])
-    ]
+    MassiveObject(mass,
+                  area,
+                  drag_coeff,
+                  roll_res_coeff,
+                  Spring(spring_const,
+                         init_spring_ext,
+                         arm_length,
+                         wheel_big,
+                         wheel_small)
+                  )
+]
 
 
 # Initiate the simulation object

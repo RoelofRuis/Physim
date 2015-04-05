@@ -20,6 +20,7 @@ class MassiveObject():
         self.F = 0
         self.A = area
         self.spring = spring
+        spring.attach(self)
     
     def __str__(self):
         return ("MassiveObject\n\t"
@@ -82,7 +83,6 @@ class MassiveObject():
 # - base force supplied on the distance the wheel roled during this step
 class Spring():
     def __init__(self, spring_constant, init_ext, arm_length, wheel_radius_big, wheel_radius_small):
-        self.parent = MassiveObject(mass, area, drag_coeff, roll_res_coeff, springs[1])
         self.c = spring_constant
         self.init_u = init_ext
         self.A = arm_length
@@ -92,6 +92,9 @@ class Spring():
         self.whl_sml = wheel_radius_small
         self.circmfer_whl_bg = 2 * math.pi * self.whl_bg
         self.circmfer_whl_sml = 2 * math.pi * self.whl_sml
+
+    def attach(self, obj):
+        self.parent = obj
 
     def unwind(self, delta_t):
         force = ((self.c * self.u) / self.A) * (self.whl_sml / self.whl_bg)
