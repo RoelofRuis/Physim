@@ -103,7 +103,7 @@ class Spring():
         return force
 
     def updateExtension(self):
-        self.u -= math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A)) ))
+        self.u = 360 - math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A)) ))
 
     def updateString(self, wheel_radius_big, wheel_radius_small, delta_t):
         
