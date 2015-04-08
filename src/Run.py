@@ -13,7 +13,7 @@ mass = 200
 area = 0.01
 drag_coeff = 0.01
 roll_res_coeff = 0.01
-spring_const = 2
+spring_const = 20
 init_spring_ext = 345
 arm_length = 20
 wheel_big = 10
@@ -38,4 +38,4 @@ objects = [
 s = Simulation(delta_t, objects)
 
 # Run the simulation
-s.run(100)
+s.run(1000)

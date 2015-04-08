@@ -98,15 +98,18 @@ class Spring():
 
     def unwind(self, delta_t):
         force = ((self.c * self.u) / self.A) * (self.whl_sml / self.whl_bg)
-        self.updateExtension()
-        self.updateString(self.whl_bg, self.whl_sml, delta_t)
-        return force
+        if force > 0:
+            self.updateExtension()
+            self.updateString(delta_t)
+            return force
+        else:
+            return 0
 
     def updateExtension(self):
-        self.u -= math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A)) ))
+        deg = math.acos((pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * pow(self.A, 2)))
+        self.u -= math.degrees( deg )
 
-    def updateString(self, wheel_radius_big, wheel_radius_small, delta_t):
-        
+    def updateString(self, delta_t):
         v = self.parent.getVelocity()
         delta_s = v * delta_t
         revolutions = delta_s / self.circmfer_whl_bg
