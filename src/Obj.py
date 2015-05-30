@@ -6,14 +6,13 @@
 
 from __future__ import division
 import math
-#from Run import springs
 
 # An object with mass
 class MassiveObject():
     def __init__(self, mass, area, drag_coeff, roll_res_coeff, spring):
         self.m = mass
         self.Cd = drag_coeff
-        self.Crr = roll_res_coeff
+        self.asymp_coeff = roll_res_coeff
         self.s = 0
         self.v = 0
         self.a = 0
@@ -21,6 +20,7 @@ class MassiveObject():
         self.A = area
         self.spring = spring
         spring.attach(self)
+        self.Crr = 0
     
     def __str__(self):
         return ("MassiveObject\n\t"
@@ -53,9 +53,12 @@ class MassiveObject():
         return self.v
 
     def update(self, delta_t):
+        self.updateRollResCoeff
         self.updateForces(delta_t)
         self.updateDistance(delta_t)
-        print self
+
+    def updateRollResCoeff(self):
+        self.Crr = self.asymp_coeff * tanh(4*self.v/0.00001)
 
     def updateForces(self, delta_t):
         density = 1.29
@@ -65,11 +68,12 @@ class MassiveObject():
         self.f_spring = self.spring.unwind(delta_t)
         self.f_drag = 0.5 * density * pow(self.v, 2) * self.Cd * self.A
         self.f_roll = self.Crr * (self.m * gravity)
+        
 
-        f_drive = max((self.f_spring + self.f_motor) - self.f_roll, 0)
-        f_counter = self.f_drag
+        f_drive = self.f_spring + self.f_motor
+        f_counter = self.f_drag + self.f_roll
 
-        self.F = f_drive - f_counter if f_drive >= 0 else f_drive + f_counter
+        self.F = f_drive - f_counter
 
     def updateDistance(self, delta_t):
         self.a = self.F / self.m
@@ -82,7 +86,7 @@ class MassiveObject():
 # - update extension based on amount of force supplied
 # - base force supplied on the distance the wheel roled during this step
 class Spring():
-    def __init__(self, spring_constant, init_ext, arm_length, wheel_radius_big, wheel_radius_small):
+    def __init__(self, spring_constant, init_ext, arm_length, wheel_radius_big, wheel_radius_small, min_ext):
         self.c = spring_constant
         self.init_u = init_ext
         self.A = arm_length
@@ -92,6 +96,7 @@ class Spring():
         self.whl_sml = wheel_radius_small
         self.circmfer_whl_bg = 2 * math.pi * self.whl_bg
         self.circmfer_whl_sml = 2 * math.pi * self.whl_sml
+        self.min_ext = min_ext
 
     def attach(self, obj):
         self.parent = obj
@@ -106,7 +111,12 @@ class Spring():
             return 0
 
     def updateExtension(self):
-        self.u = 360 - math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A)) ))
+        new_ext = math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A)) ))
+        if self.u - new_ext > self.min_ext:
+            self.u -= new_ext
+        else:
+            self.u = 0
+        
 
     def updateString(self, delta_t):
         v = self.parent.getVelocity()
@@ -115,6 +125,14 @@ class Spring():
         self.strng += revolutions * self.circmfer_whl_sml
         
         
-        
-        
-        
+class Motor():
+    @staticmethod
+    def get_random():
+        return Motor()
+
+    def __init__(self):
+        pass
+
+    def mutate(self):
+        # nieuw motor object gebaseerd op eigenschappen van self
+        return Motor()
