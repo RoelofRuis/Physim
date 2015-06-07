@@ -4,6 +4,7 @@
 
 from Obj import Motor
 from collections import deque
+import random
 
 # 1. Genereer een set auto's met willekeurige eigenschappen
 # 2. Run de simulatie
@@ -18,6 +19,7 @@ class Evolver():
         self.objects_simulator = objects_simulator
         self.current_run = self.init_random()
         self.current_results = []
+        self.top_val = 0
 
     def evolve(self):
         n = 0
@@ -42,6 +44,7 @@ class Evolver():
 
     def run_epoch(self):
         self.current_results = self.objects_simulator.run_batch(self.current_run)
+        print self.top_val
 
     def find_best(self):
         selected = deque([])
@@ -52,14 +55,24 @@ class Evolver():
                 if (len(selected) == self.max_selected):
                     selected.pop()
                 selected.appendleft((motor, dist))
+                if best_val > self.top_val:
+                    self.top_val = best_val
         return selected
 
     def mutate(self, best_selection):
         new_gen = []
         for (motor, dist) in best_selection:
             for n in range(20):
-                new_gen.append(self.mutate_single(motor))
+                new_gen.append(self.mutate_single(motor[:]))
         self.current_run = new_gen
-
+        
     def mutate_single(self, motor_obj):
-        return motor_obj.mutate()
+        randint_mod_2 = random.randint(-2, 2)
+        randint_mod_3 = random.randint(-10, 10)
+        if 0 < motor_obj[1] + randint_mod_2 < 40:
+            motor_obj[1] += randint_mod_2
+            
+        if  motor_obj[2] + randint_mod_3 != 0:
+            motor_obj[2] += randint_mod_3  
+        return motor_obj
+       

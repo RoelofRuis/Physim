@@ -45,7 +45,7 @@ class Simulation():
 
 class Objects():
     def __init__(self, delta_t, carproperties):
-        self.steps = 1000
+        self.steps = 100
         self.delta_t = delta_t
         self.car_prop = carproperties
         self.objects = []
@@ -64,7 +64,8 @@ class Objects():
                                               self.car_prop["area"],
                                               self.car_prop["drag_coeff"],
                                               self.car_prop["roll_res_coeff"],
-                                              spring
+                                              spring,
+                                              m
                                               )])
             sim.run(self.steps)
             res = sim.results()

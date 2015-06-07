@@ -6,21 +6,31 @@
 
 from __future__ import division
 import math
+from operator import add, sub, mul, div
+from decimal import *
+from operator import *
+import random
 
 # An object with mass
 class MassiveObject():
-    def __init__(self, mass, area, drag_coeff, roll_res_coeff, spring):
+    def __init__(self, mass, area, drag_coeff, roll_res_coeff, spring, random_array):
         self.m = mass
+        self.capacitorCoulomb = 0.96
         self.Cd = drag_coeff
-        self.asymp_coeff = roll_res_coeff
         self.s = 0
-        self.v = 0
+        self.v = 0.0001
         self.a = 0
         self.F = 0
         self.A = area
         self.spring = spring
         spring.attach(self)
-        self.Crr = 0
+        self.Crr = roll_res_coeff
+        self.random_array = random_array
+        self.second_math_op = random_array[3]
+        self.randint_1 = self.random_array[0]
+        self.randint_2 = self.random_array[1]
+        self.randint_3 = self.random_array[2]
+        
     
     def __str__(self):
         return ("MassiveObject\n\t"
@@ -53,21 +63,30 @@ class MassiveObject():
         return self.v
 
     def update(self, delta_t):
-        self.updateRollResCoeff
         self.updateForces(delta_t)
         self.updateDistance(delta_t)
-
-    def updateRollResCoeff(self):
-        self.Crr = self.asymp_coeff * tanh(4*self.v/0.00001)
+        self.updateCapacitors(delta_t)
+        
 
     def updateForces(self, delta_t):
         density = 1.29
         gravity = 9.81
-        
-        self.f_motor = 0
+        if  self.v > 0 and self.second_math_op((math.sqrt(pow(self.v, self.randint_1) * self.randint_2)), self.randint_3) > 100 and self.capacitorCoulomb > 0:                                   #self.second_math_op(((math.sqrt(pow(self.v, self.randint_1))) * self.randint_2), self.randint_3) > 100 and self.capacitorCoulomb > 0:
+            self.f_motor_percentage = 100
+        elif self.capacitorCoulomb <= 0:
+            self.f_motor_percentage = 0
+        elif self.v > 0 and self.second_math_op((math.sqrt(pow(self.v, self.randint_1)) * self.randint_2), self.randint_3) < 0:
+            self.f_motor_percentage = 0
+        elif self.v > 0:
+            self.f_motor_percentage = self.second_math_op((math.sqrt(pow(self.v, self.randint_1)) * self.randint_2), self.randint_3)
+        self.f_motor = 0.2 * (self.f_motor_percentage / 100)
         self.f_spring = self.spring.unwind(delta_t)
         self.f_drag = 0.5 * density * pow(self.v, 2) * self.Cd * self.A
-        self.f_roll = self.Crr * (self.m * gravity)
+        if self.v <=  0:
+            self.f_roll = 0
+            self.v = 0
+        else:
+            self.f_roll = self.Crr * (self.m * gravity)
         
 
         f_drive = self.f_spring + self.f_motor
@@ -77,8 +96,14 @@ class MassiveObject():
 
     def updateDistance(self, delta_t):
         self.a = self.F / self.m
-        self.v += self.a * delta_t
+        if self.v + (self.a * delta_t) > 0:
+            self.v += self.a * delta_t
+        else:
+            self.v = 0
         self.s += self.v * delta_t
+
+    def updateCapacitors(self, delta_t):
+        self.capacitorCoulomb -= (0.25 * (self.f_motor_percentage / 100)) * delta_t
 
 
 # Functioning of the spring object is far from optimal.
@@ -111,7 +136,7 @@ class Spring():
             return 0
 
     def updateExtension(self):
-        new_ext = math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A)) ))
+        new_ext = math.degrees( math.acos( (pow(self.strng, 2) - (2 * pow(self.A, 2))) / (-2 * (self.A * self.A))))
         if self.u - new_ext > self.min_ext:
             self.u -= new_ext
         else:
@@ -128,11 +153,28 @@ class Spring():
 class Motor():
     @staticmethod
     def get_random():
-        return Motor()
+        random_array = []
+
+       
+        second_math_op = [
+            add,
+            sub,
+            mul,
+            div
+            ]
+        second_math_choice = random.choice(second_math_op)
+        randint_1 = random.randint(1, 8)
+        randint_2 = random.randint(1, 10)
+        randint_3 = random.randint(1, 80)
+        random_array.insert(0, randint_1)
+        random_array.insert(1, randint_2)
+        random_array.insert(2, randint_3)
+        random_array.insert(3, second_math_choice)
+        
+        return random_array
 
     def __init__(self):
         pass
 
     def mutate(self):
-        # nieuw motor object gebaseerd op eigenschappen van self
-        return Motor()
+        pass
